@@ -1,12 +1,13 @@
 version: 0.0
-os: windows
+os: linux
 files:
   - source: /
-    destination: C:\app
+    destination: /home/ec2-user/myapp
+
 hooks:
   BeforeInstall:
-    - location: scripts\before_install.ps1
+    - location: scripts/before_install.sh
   AfterInstall:
-    - location: scripts\after_install.ps1
+    - location: scripts/after_install.sh
   ApplicationStart:
-    - location: scripts\start_app.ps1
+    - location: scripts/start_app.sh
