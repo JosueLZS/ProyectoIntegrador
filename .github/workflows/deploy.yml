@@ -6,18 +6,28 @@ jobs:
   deploy:
     runs-on: windows-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Zip app
-      run: powershell Compress-Archive -Path * -DestinationPath app.zip
-    - name: Upload to S3
-      uses: aws-actions/s3-sync@v2
-      with:
-        source: app.zip
-        bucket: ${{ secrets.S3_BUCKET }}
-        region: us-east-1
-    - name: Deploy to EC2 via CodeDeploy
-      uses: aws-actions/aws-codedeploy@v1
-      with:
-        application-name: MiApp
-        deployment-group: MiApp-Group
-        region: us-east-1
+      - uses: actions/checkout@v3
+
+      # Comprimir la aplicación
+      - name: Zip app
+        run: powershell Compress-Archive -Path * -DestinationPath app.zip
+
+      # Subir a S3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Upload to S3
+        run: aws s3 cp app.zip s3://${{ secrets.S3_BUCKET }}/app.zip
+
+      # Desplegar a EC2 via CodeDeploy
+      - name: Deploy to EC2 via CodeDeploy
+        run: |
+          aws deploy create-deployment \
+            --application-name MiApp \
+            --deployment-group-name MiApp-Group \
+            --s3-location bucket=${{ secrets.S3_BUCKET }},key=app.zip,bundleType=zip \
+            --region us-east-1
