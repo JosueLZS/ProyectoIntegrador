@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest   # Changed from windows-latest
     steps:
       # Checkout code
       - uses: actions/checkout@v3
@@ -24,9 +24,8 @@ jobs:
       - name: Run tests
         run: echo "No tests yet"
 
-      # Build Docker image locally
+      # Build Docker image
       - name: Build Docker image
         run: |
-          $tag = "${{ github.sha }}"
-          Write-Host "Building Docker image: mi-app:$tag"
-          docker build -t mi-app:$tag -t mi-app:latest .
+          docker build -t mi-app:${{ github.sha }} -t mi-app:latest .
+
